@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Kotoba Kaigo Sinonim Essay</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 25px;
+            padding: 35px 30px;
+            max-width: 750px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .container::before {
+            content: '';
+            display: block;
+            height: 6px;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            border-radius: 25px 25px 0 0;
+            margin: -35px -30px 20px -30px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .title { font-size: 16px; font-weight: 700; color: #1a1a2e; }
+        .title span { color: #e94560; }
+        .stats { display: flex; gap: 12px; font-size: 13px; font-weight: 600; color: #555; }
+        .stats div { background: #f0f0f0; padding: 3px 12px; border-radius: 20px; }
+        .stats .num { color: #e94560; font-size: 16px; }
+        .session-badge {
+            background: #e94560;
+            color: white;
+            padding: 5px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            text-align: center;
+        }
+        .session-badge .sub { font-weight: 400; font-size: 12px; }
+        .session-badge.sesi2 { background: #f39c12; }
+        .progress-bar { width: 100%; height: 6px; background: #e0e0e0; border-radius: 10px; margin-bottom: 15px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #e94560, #feca57); border-radius: 10px; transition: width 0.4s; width: 0%; }
+        .timer-container { text-align: center; margin-bottom: 12px; }
+        .timer {
+            display: inline-block;
+            font-size: 42px;
+            font-weight: 700;
+            color: #1a1a2e;
+            background: #f8f9fa;
+            padding: 4px 28px;
+            border-radius: 12px;
+            min-width: 90px;
+        }
+        .timer.warning { color: #e94560; animation: blink 0.8s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        .question-number { font-size: 12px; color: #888; text-align: center; margin-bottom: 4px; }
+        .question-text {
+            font-size: 42px;
+            font-weight: 700;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 30px 18px;
+            background: #f8f9fa;
+            border-radius: 16px;
+            min-height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            border: 4px dashed #e94560;
+        }
+        .question-text.jepang {
+            color: #9b59b6;
+            border-color: #9b59b6;
+            font-size: 38px;
+        }
+        .session-info {
+            text-align: center;
+            font-size: 15px;
+            color: #e94560;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .writing-note {
+            text-align: center;
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #856404;
+            font-weight: 600;
+        }
+        .auto-note {
+            text-align: center;
+            background: #e7f3ff;
+            border: 2px solid #2196f3;
+            border-radius: 12px;
+            padding: 10px;
+            margin-top: 5px;
+            font-size: 13px;
+            color: #0d47a1;
+            font-weight: 600;
+        }
+        .result-screen { display: none; text-align: center; padding: 15px 0; }
+        .result-screen .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e94560, #feca57);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            box-shadow: 0 10px 40px rgba(233,69,96,0.3);
+        }
+        .result-screen .score-circle .score-text { font-size: 48px; font-weight: 800; color: white; }
+        .result-screen .score-circle .score-text small { font-size: 18px; font-weight: 400; }
+        .result-screen h2 { font-size: 22px; color: #e94560; margin-bottom: 5px; }
+        .result-screen h3 { font-size: 20px; color: #1a1a2e; margin-bottom: 5px; }
+        .result-screen p { color: #666; font-size: 15px; margin-bottom: 5px; }
+        .result-screen .info-box {
+            margin-top: 15px;
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .answer-list {
+            margin-top: 20px;
+            text-align: left;
+            background: #f8f9fa;
+            padding: 15px 18px;
+            border-radius: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .answer-list .section-title {
+            font-weight: 700;
+            color: #e94560;
+            padding: 10px 0 6px 0;
+            border-bottom: 2px solid #e94560;
+            margin-bottom: 8px;
+            font-size: 15px;
+            position: sticky;
+            top: 0;
+            background: #f8f9fa;
+            z-index: 1;
+        }
+        .answer-list .item {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 12px;
+            display: flex;
+            gap: 6px;
+            align-items: flex-start;
+        }
+        .answer-list .item:last-child { border-bottom: none; }
+        .answer-list .item .no {
+            color: #999;
+            font-weight: 600;
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+        .answer-list .item .soal {
+            font-weight: 600;
+            color: #2c3e50;
+            flex: 1;
+            word-break: break-word;
+        }
+        .answer-list .item .jawab {
+            color: #e94560;
+            font-weight: 600;
+            flex: 1;
+            word-break: break-word;
+            text-align: right;
+        }
+        .btn-restart {
+            margin-top: 15px;
+            padding: 12px 40px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #e94560, #c0392b);
+            color: white;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-restart:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233,69,96,0.35); }
+        .start-screen { text-align: center; padding: 15px 0; }
+        .start-screen h1 { font-size: 22px; color: #1a1a2e; margin-bottom: 5px; line-height: 1.3; }
+        .start-screen h1 span { color: #e94560; }
+        .start-screen p { color: #666; font-size: 15px; margin-bottom: 5px; }
+        .start-screen .rules {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 12px 18px;
+            margin: 12px 0 20px;
+            text-align: left;
+            font-size: 14px;
+            color: #555;
+        }
+        .start-screen .rules li { margin: 4px 0; list-style: none; }
+        .hidden { display: none !important; }
+        .identitas-form {
+            text-align: center;
+            padding: 20px 0 10px 0;
+        }
+        .form-group {
+            margin-bottom: 14px;
+            text-align: left;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            color: #1a1a2e;
+            background: white;
+            transition: border-color 0.3s;
+            outline: none;
+        }
+        .form-group input:focus {
+            border-color: #e94560;
+            box-shadow: 0 0 0 3px rgba(233,69,96,0.15);
+        }
+        .btn-submit-identitas {
+            padding: 14px 50px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #e94560, #c0392b);
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        .btn-submit-identitas:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(233,69,96,0.35);
+        }
+        .btn-submit-identitas:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .error-msg {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+        }
+        .error-msg.show { display: block; }
+        .logo-pembuka {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 15px;
+            display: block;
+            border: 4px solid #e94560;
+            box-shadow: 0 8px 25px rgba(233,69,96,0.3);
+        }
+        .countdown-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9998;
+            flex-direction: column;
+            color: white;
+        }
+        .countdown-overlay.show { display: flex; }
+        .countdown-overlay .big-num {
+            font-size: 120px;
+            font-weight: 800;
+            color: #feca57;
+            animation: pulse 1s infinite;
+        }
+        .countdown-overlay .text { font-size: 24px; margin-top: 20px; color: #fff; text-align: center; padding: 0 20px; }
+        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+        .session-transition {
+            text-align: center;
+            padding: 30px 20px;
+            background: #f8f9fa;
+            border-radius: 16px;
+            margin: 10px 0;
+        }
+        .session-transition .big-icon { font-size: 48px; }
+        .session-transition h3 { font-size: 24px; color: #1a1a2e; margin: 10px 0; }
+        .session-transition p { color: #666; font-size: 16px; }
+        .btn-continue {
+            margin-top: 15px;
+            padding: 12px 40px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #e94560, #c0392b);
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-continue:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233,69,96,0.35); }
+        @media (max-width: 500px) {
+            .logo-pembuka { width: 140px; height: 140px; }
+            .question-text { font-size: 30px; min-height: 110px; }
+            .question-text.jepang { font-size: 26px; }
+            .timer { font-size: 34px; }
+            .start-screen h1 { font-size: 18px; }
+            .answer-list .item .jawab { text-align: left; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="countdown-overlay" id="countdownOverlay">
+    <div class="big-num" id="countdownNum">3</div>
+    <div class="text">Bersiap... Tulis jawaban di kertas!</div>
+</div>
+
+<div class="container" id="app">
+
+    <div class="start-screen" id="startScreen">
+        <img src="logo.png" alt="Logo Kuis" class="logo-pembuka">
+        <h1>Kuis Kotoba <span>Kaigo Sinonim</span><br>Essay</h1>
+        <p>✍️ Tulis jawaban di kertas</p>
+        
+        <div class="identitas-form">
+            <div class="form-group">
+                <label for="inputNama">👤 Nama Lengkap</label>
+                <input type="text" id="inputNama" placeholder="Masukkan nama Anda...">
+            </div>
+            <div class="form-group">
+                <label for="inputKelas">🏫 Kelas</label>
+                <input type="text" id="inputKelas" placeholder="Masukkan kelas Anda...">
+            </div>
+            <div id="errorIdentitas" class="error-msg">⚠️ Nama dan kelas harus diisi!</div>
+            <button class="btn-submit-identitas" id="btnMulai" onclick="submitIdentitas()">Mulai Kuis 🚀</button>
+        </div>
+        
+        <div class="rules" style="margin-top:15px;">
+            <li>📝 <strong>100 soal</strong> (50 × 2 sesi)</li>
+            <li>🈶→ひ <strong>Sesi 1:</strong> 50 soal (Kanji → Sinonim)</li>
+            <li>ひ→🈶 <strong>Sesi 2:</strong> 50 soal (Sinonim → Kanji)</li>
+            <li>🔀 Soal <strong>DIACAK</strong></li>
+            <li>✍️ <strong>Tulis jawaban di kertas</strong> (tanpa input)</li>
+            <li>⏱️ <strong>15 detik</strong> per soal</li>
+            <li>⏭️ <strong>Auto next</strong> (tidak bisa skip manual)</li>
+            <li>📋 <strong>Kunci jawaban muncul di akhir</strong></li>
+        </div>
+    </div>
+
+    <div id="quizScreen" class="hidden">
+        <div class="header">
+            <div class="title">📚 Kuis <span>Kaigo: Sinonim</span></div>
+            <div class="stats">
+                <div>📌 <span class="num" id="currentNum">1</span>/<span id="totalNum">100</span></div>
+            </div>
+        </div>
+        
+        <div class="session-badge" id="sessionBadge">
+            🈶→ひ <span class="sub">Sesi 1 • Tulis di Kertas ✍️</span>
+        </div>
+        
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="timer-container"><div class="timer" id="timerDisplay">15</div></div>
+        <div class="question-number" id="qNumber">Soal 1 dari 100</div>
+        <div class="session-info" id="sessionInfo">✍️ Tulis sinonim bahasa Jepangnya di kertas!</div>
+        
+        <div class="question-text" id="questionText">
+            <span id="mainText">嘔吐（おうと）</span>
+        </div>
+        
+        <div class="writing-note">
+            ✍️ Tulis jawaban di kertas
+        </div>
+        
+        <div class="auto-note">
+            ⏭️ Soal akan otomatis lanjut saat waktu habis (tidak bisa skip manual)
+        </div>
+    </div>
+
+    <div id="transitionScreen" class="hidden">
+        <div class="session-transition">
+            <div class="big-icon">🔄</div>
+            <h3>Sesi 1 Selesai! 🎉</h3>
+            <p>Siap untuk <strong>Sesi 2</strong>?</p>
+            <p style="margin-top:5px;">ひ Sinonim → 🈶 Kanji</p>
+            <button class="btn-continue" onclick="startNextSession()">Lanjut →</button>
+        </div>
+    </div>
+
+    <div class="result-screen" id="resultScreen">
+        <div class="score-circle"><div class="score-text"><span id="finalScore">✓</span></div></div>
+        <h2 id="resultName">👤 Nama Siswa</h2>
+        <h3>Selesai! 🎉</h3>
+        <p id="resultDesc">Semua soal telah ditampilkan.</p>
+        <div class="info-box">
+            ✍️ Kunci jawaban ada di bawah.<br>
+            Silakan koreksi jawaban di kertas Anda.
+        </div>
+        <div class="answer-list" id="answerList"></div>
+        <div style="margin-top:12px;font-size:14px;color:#2ecc71;" id="saveStatus">
+            💾 Menyimpan data...
+        </div>
+        <button class="btn-restart" onclick="restartQuiz()">🔄 Ulangi Kuis</button>
+    </div>
+</div>
+
+<script>
+// ===== KOSAKATA SINONIM KAIGO (50 SOAL) =====
+const KOTOBA = [
+    { kanji: "嘔吐（おうと）", sinonim: "吐く（はく）" },
+    { kanji: "観察（かんさつ）", sinonim: "見る（みる）／見守り（みまもり）" },
+    { kanji: "転倒（てんとう）", sinonim: "転ぶ（ころぶ）" },
+    { kanji: "転落（てんらく）", sinonim: "落ちる（おちる）" },
+    { kanji: "診察（しんさつ）", sinonim: "診る（みる）" },
+    { kanji: "発汗（はっかん）", sinonim: "汗を掻く（あせをかく）" },
+    { kanji: "注意する（ちゅういする）", sinonim: "気をつける（きをつける）" },
+    { kanji: "仰臥位（ぎょうがい）", sinonim: "仰向け（あおむけ）" },
+    { kanji: "側臥位（そくがい）", sinonim: "横向き（よこむき）" },
+    { kanji: "腹臥位（ふくがい）", sinonim: "うつ伏せ（うつぶせ）" },
+    { kanji: "臥床（がしょう）", sinonim: "寝る（ねる）／横になる（よこになる）" },
+    { kanji: "起き上がる（おきあがる）", sinonim: "離床（りしょう）" },
+    { kanji: "掴まる（つかまる）", sinonim: "握る（にぎる）" },
+    { kanji: "床（ゆか）", sinonim: "フロア" },
+    { kanji: "案内（あんない）", sinonim: "誘導（ゆうどう）" },
+    { kanji: "交換する（こうかんする）", sinonim: "取り替える（とりかえる）／変える（かえる）" },
+    { kanji: "清拭（せいしき）", sinonim: "体を拭く（からだをふく）" },
+    { kanji: "洗髪（せんぱつ）", sinonim: "髪を洗う（かみをあらう）" },
+    { kanji: "洗面（せんめん）", sinonim: "顔を洗う（かおをあらう）" },
+    { kanji: "着替え（きがえ）", sinonim: "更衣（こうい）" },
+    { kanji: "衣類（いるい）", sinonim: "洋服（ようふく）" },
+    { kanji: "寝ている人の向きを変える（ねているひとのむきをかえる）", sinonim: "体位変換（たいいへんかん）" },
+    { kanji: "臀部（でんぶ）", sinonim: "お尻（おしり）／尻（しり）" },
+    { kanji: "危険（きけん）", sinonim: "危ない（あぶない）" },
+    { kanji: "嚥下（えんげ）", sinonim: "飲み込み（のみこみ）" },
+    { kanji: "立位（りつい）", sinonim: "立つ（たつ）" },
+    { kanji: "朝ごはん（あさごはん）", sinonim: "朝食（ちょうしょく）" },
+    { kanji: "昼ごはん（ひるごはん）", sinonim: "昼食（ちゅうしょく）" },
+    { kanji: "晩ごはん（ばんごはん）", sinonim: "夕食（ゆうしょく）" },
+    { kanji: "更衣室（こういしつ）", sinonim: "脱衣所（だついじょ）" },
+    { kanji: "足の裏（あしのうら）", sinonim: "足底（そくてい）" },
+    { kanji: "腹（はら）", sinonim: "お腹（おなか）" },
+    { kanji: "高齢者用押し車（こうれいしゃようおしぐるま）", sinonim: "シルバーカー" },
+    { kanji: "メニュー", sinonim: "献立表（こんだてひょう）" },
+    { kanji: "歩く（あるく）", sinonim: "歩行（ほこう）" },
+    { kanji: "座位（ざい）", sinonim: "座る姿勢（すわるしせい）" },
+    { kanji: "移乗（いじょう）", sinonim: "乗り換え（のりかえ）" },
+    { kanji: "移動（いどう）", sinonim: "場所を移ること（ばしょをうつること）" },
+    { kanji: "口腔ケア（こうくうけあ）", sinonim: "歯磨き（はみがき）、口をきれいにする（くちをきれいにする）" },
+    { kanji: "水分補給（すいぶんほきゅう）", sinonim: "水を飲む（みずをのむ）" },
+    { kanji: "爪切り（つめきり）", sinonim: "爪を切る（つめをきる）" },
+    { kanji: "整容（せいよう）", sinonim: "髪をとかす（かみをとかす）、整える（ととのえる）" },
+    { kanji: "摂食（せっしょく）", sinonim: "食事をする（しょくじをする）" },
+    { kanji: "入浴（にゅうよく）", sinonim: "お風呂に入る（おふろにはいる）" },
+    { kanji: "服薬（ふくやく）", sinonim: "薬を飲む（くすりのむ）" },
+    { kanji: "記録（きろく）", sinonim: "書く（かく）" },
+    { kanji: "禁止（きんし）", sinonim: "してはいけません" },
+    { kanji: "換気（かんき）", sinonim: "空気を変える（くうきをかえる）" },
+    { kanji: "羞恥心（しゅうちしん）", sinonim: "恥ずかしい（はずかしい）" }
+];
+
+// ===== VARIABLES =====
+let questions = [];
+let currentIndex = 0;
+let timer = 15;
+let timerInterval = null;
+let isAnswered = false;
+let currentSession = 1;
+const TIME_PER_QUESTION = 15;
+const SESI1_COUNT = KOTOBA.length;
+const TOTAL = KOTOBA.length * 2;
+let userNama = '';
+let userKelas = '';
+
+// ===== GOOGLE APPS SCRIPT URL =====
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxcyG5HJMtK0ZCMDyP1rFmXwJrxQpY5hOHOwIYU66h6cbxit_cKBJK9nuohzxDk28o/exec';
+
+// ===== DOM =====
+const startScreen = document.getElementById('startScreen');
+const quizScreen = document.getElementById('quizScreen');
+const transitionScreen = document.getElementById('transitionScreen');
+const resultScreen = document.getElementById('resultScreen');
+const mainText = document.getElementById('mainText');
+const questionText = document.getElementById('questionText');
+const timerDisplay = document.getElementById('timerDisplay');
+const currentNum = document.getElementById('currentNum');
+const totalNum = document.getElementById('totalNum');
+const progressFill = document.getElementById('progressFill');
+const qNumber = document.getElementById('qNumber');
+const finalScore = document.getElementById('finalScore');
+const resultName = document.getElementById('resultName');
+const resultDesc = document.getElementById('resultDesc');
+const sessionBadge = document.getElementById('sessionBadge');
+const sessionInfo = document.getElementById('sessionInfo');
+const inputNama = document.getElementById('inputNama');
+const inputKelas = document.getElementById('inputKelas');
+const btnMulai = document.getElementById('btnMulai');
+const errorIdentitas = document.getElementById('errorIdentitas');
+const saveStatus = document.getElementById('saveStatus');
+const countdownOverlay = document.getElementById('countdownOverlay');
+const countdownNum = document.getElementById('countdownNum');
+const answerList = document.getElementById('answerList');
+
+// ===== SHUFFLE =====
+function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+// ===== BUILD QUESTIONS (DIACAK + BOLAK-BALIK) =====
+function buildQuestions() {
+    const sesi1 = shuffle(KOTOBA).map(item => ({
+        soal: item.kanji,
+        jawab: item.sinonim,
+        mode: 'kanji_to_sinonim'
+    }));
+    const sesi2 = shuffle(KOTOBA).map(item => ({
+        soal: item.sinonim,
+        jawab: item.kanji,
+        mode: 'sinonim_to_kanji'
+    }));
+    return [...sesi1, ...sesi2];
+}
+
+// ===== LOGIC =====
+function submitIdentitas() {
+    const nama = inputNama.value.trim();
+    const kelas = inputKelas.value.trim();
+    
+    if (nama === '' || kelas === '') {
+        errorIdentitas.classList.add('show');
+        return;
+    }
+    
+    errorIdentitas.classList.remove('show');
+    userNama = nama;
+    userKelas = kelas;
+    btnMulai.disabled = true;
+    btnMulai.textContent = '⏳ Memuat...';
+    
+    setTimeout(() => {
+        startCountdown();
+    }, 500);
+}
+
+function startCountdown() {
+    let count = 3;
+    countdownNum.textContent = count;
+    countdownOverlay.classList.add('show');
+    
+    const countInterval = setInterval(() => {
+        count--;
+        if (count > 0) {
+            countdownNum.textContent = count;
+        } else if (count === 0) {
+            countdownNum.textContent = 'Mulai!';
+        } else {
+            clearInterval(countInterval);
+            countdownOverlay.classList.remove('show');
+            startQuiz();
+        }
+    }, 1000);
+}
+
+function startQuiz() {
+    questions = buildQuestions();
+    currentIndex = 0;
+    startScreen.classList.add('hidden');
+    quizScreen.classList.remove('hidden');
+    transitionScreen.classList.add('hidden');
+    resultScreen.style.display = 'none';
+    loadQuestion();
+}
+
+function loadQuestion() {
+    if (currentIndex >= questions.length) { endQuiz(); return; }
+
+    const q = questions[currentIndex];
+    
+    if (currentIndex < SESI1_COUNT) currentSession = 1;
+    else currentSession = 2;
+    
+    timer = TIME_PER_QUESTION;
+    timerDisplay.textContent = timer;
+    timerDisplay.classList.remove('warning');
+
+    if (currentSession === 1) {
+        sessionBadge.innerHTML = '🈶→ひ <span class="sub">Sesi 1 • Tulis di Kertas ✍️</span>';
+        sessionBadge.className = 'session-badge';
+        sessionInfo.textContent = '✍️ Tulis sinonim bahasa Jepangnya di kertas!';
+        mainText.textContent = q.soal;
+        questionText.className = 'question-text';
+    } else {
+        sessionBadge.innerHTML = 'ひ→🈶 <span class="sub">Sesi 2 • Tulis di Kertas ✍️</span>';
+        sessionBadge.className = 'session-badge sesi2';
+        sessionInfo.textContent = '✍️ Tulis kanji (hiragana) aslinya di kertas!';
+        mainText.textContent = q.soal;
+        questionText.className = 'question-text jepang';
+    }
+    
+    qNumber.textContent = `Soal ${currentIndex + 1} dari ${TOTAL}`;
+    currentNum.textContent = currentIndex + 1;
+    totalNum.textContent = TOTAL;
+    progressFill.style.width = ((currentIndex) / TOTAL * 100) + '%';
+
+    isAnswered = false;
+
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        timer--;
+        timerDisplay.textContent = timer;
+        if (timer <= 5) timerDisplay.classList.add('warning');
+        if (timer <= 0) {
+            clearInterval(timerInterval);
+            if (!isAnswered) {
+                isAnswered = true;
+                nextQuestion();
+            }
+        }
+    }, 1000);
+}
+
+function nextQuestion() {
+    isAnswered = true;
+    clearInterval(timerInterval);
+    currentIndex++;
+    
+    if (currentIndex === SESI1_COUNT) {
+        showTransition();
+        return;
+    }
+    
+    if (currentIndex >= questions.length) { 
+        endQuiz(); 
+    } else { 
+        loadQuestion(); 
+    }
+}
+
+function showTransition() {
+    quizScreen.classList.add('hidden');
+    transitionScreen.classList.remove('hidden');
+}
+
+function startNextSession() {
+    transitionScreen.classList.add('hidden');
+    quizScreen.classList.remove('hidden');
+    loadQuestion();
+}
+
+function endQuiz() {
+    clearInterval(timerInterval);
+    
+    quizScreen.classList.add('hidden');
+    resultScreen.style.display = 'block';
+    finalScore.textContent = '✓';
+    
+    resultName.textContent = `👤 ${userNama} (${userKelas})`;
+    resultDesc.textContent = `Semua ${TOTAL} soal telah ditampilkan. Silakan koreksi jawaban di kertas.`;
+
+    renderAnswerList();
+
+    saveStatus.innerHTML = '⏳ Menyimpan data...';
+    saveStatus.style.color = '#f39c12';
+    
+    kirimData();
+}
+
+function renderAnswerList() {
+    answerList.innerHTML = '';
+    
+    const title1 = document.createElement('div');
+    title1.className = 'section-title';
+    title1.textContent = '🈶→ひ Sesi 1: Kanji → Sinonim';
+    answerList.appendChild(title1);
+    
+    questions.slice(0, SESI1_COUNT).forEach((item, i) => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `<span class="no">${i + 1}.</span><span class="soal">${item.soal}</span><span class="jawab">${item.jawab}</span>`;
+        answerList.appendChild(div);
+    });
+    
+    const title2 = document.createElement('div');
+    title2.className = 'section-title';
+    title2.style.marginTop = '15px';
+    title2.textContent = 'ひ→🈶 Sesi 2: Sinonim → Kanji';
+    answerList.appendChild(title2);
+    
+    questions.slice(SESI1_COUNT).forEach((item, i) => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `<span class="no">${i + 1}.</span><span class="soal">${item.soal}</span><span class="jawab">${item.jawab}</span>`;
+        answerList.appendChild(div);
+    });
+}
+
+function kirimData() {
+    const data = {
+        Bab: "Kuis Kotoba Kaigo Sinonim Essay",
+        Nama: userNama,
+        Kelas: userKelas,
+        Skor: "-",
+        Total: TOTAL,
+        PG_Benar: 0,
+        Essay_Benar: "-",
+        Jawaban_Salah: "Dikoreksi manual oleh guru"
+    };
+
+    fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(() => {
+        saveStatus.innerHTML = '✅ Data siswa telah disimpan ke Google Sheets';
+        saveStatus.style.color = '#2ecc71';
+    })
+    .catch(err => {
+        console.log('Error:', err);
+        saveStatus.innerHTML = '⚠️ Gagal menyimpan ke Google Sheets (periksa koneksi)';
+        saveStatus.style.color = '#e74c3c';
+    });
+}
+
+function restartQuiz() {
+    resultScreen.style.display = 'none';
+    startScreen.classList.remove('hidden');
+    quizScreen.classList.add('hidden');
+    transitionScreen.classList.add('hidden');
+    currentIndex = 0;
+    clearInterval(timerInterval);
+    inputNama.value = '';
+    inputKelas.value = '';
+    userNama = '';
+    userKelas = '';
+    btnMulai.disabled = false;
+    btnMulai.textContent = 'Mulai Kuis 🚀';
+}
+</script>
+
+</body>
+</html>
